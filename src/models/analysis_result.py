@@ -26,6 +26,9 @@ class AnalysisResult:
     total_calories_burned: Optional[float] = None
     exercise_items: Optional[List[ExerciseItem]] = None
 
+    # Health review
+    health_review: Optional[dict] = None  # Contains review_points and overall_assessment
+
     # Recommendations
     recommendations: List[str] = None
     summary: str = ""

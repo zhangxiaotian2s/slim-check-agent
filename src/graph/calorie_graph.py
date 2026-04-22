@@ -6,6 +6,7 @@ from src.agents.image_analyst_agent import ImageAnalystAgent
 from src.agents.diet_analyst_agent import DietAnalystAgent
 from src.agents.exercise_analyst_agent import ExerciseAnalystAgent
 from src.agents.health_manager_agent import HealthManagerAgent
+from src.agents.health_review_agent import HealthReviewAgent
 from src.storage import get_user_storage
 from src.models import AnalysisResult
 from src.utils.logger import logger
@@ -20,6 +21,7 @@ def create_calorie_graph():
     diet_analyst = DietAnalystAgent()
     exercise_analyst = ExerciseAnalystAgent()
     health_manager = HealthManagerAgent()
+    health_reviewer = HealthReviewAgent()
 
     # Add nodes
     graph.add_node("route_input", route_input)
@@ -31,6 +33,7 @@ def create_calorie_graph():
     graph.add_node("check_user_info", health_manager.check_info)
     graph.add_node("request_missing_info", request_missing_info)
     graph.add_node("save_user_profile", health_manager.save_profile)
+    graph.add_node("health_review", health_reviewer.run)
     graph.add_node("generate_result", generate_result)
 
     # Entry point
@@ -79,13 +82,16 @@ def create_calorie_graph():
         needs_also_exercise,
         {
             "needs_exercise": "analyze_exercise",
-            "no_exercise": "generate_result",
+            "no_exercise": "health_review",
         },
     )
 
-    # After exercise analysis, always go directly to generate result
+    # After exercise analysis, go to health review
     # If there was both diet and exercise, we already did diet first
-    graph.add_edge("analyze_exercise", "generate_result")
+    graph.add_edge("analyze_exercise", "health_review")
+
+    # After health review, generate result
+    graph.add_edge("health_review", "generate_result")
 
     # Check if user info is complete
     graph.add_conditional_edges(
@@ -100,7 +106,7 @@ def create_calorie_graph():
     # If incomplete, end and request user input
     graph.add_edge("request_missing_info", END)
 
-    # After saving user profile, generate result
+    # After saving user profile, generate result (no health review for registration)
     graph.add_edge("save_user_profile", "generate_result")
 
     # End after result generation
@@ -265,6 +271,7 @@ def generate_result(state: CalorieState) -> dict:
         timestamp=datetime.now(),
         person_id=state.get("person_id"),
         user_profile=state.get("user_profile"),
+        health_review=state.get("health_review"),  # Include health review
         recommendations=[],
     )
 

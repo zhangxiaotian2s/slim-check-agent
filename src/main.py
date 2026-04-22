@@ -65,8 +65,7 @@ def register(gender, age, height, weight, activity, name):
         "error_message": None,
     }
 
-    with console.status("[bold green]处理中..."):
-        result = app.invoke(initial_state)
+    result = run_app_with_dynamic_status(initial_state, "处理中...")
 
     if result.get("requires_user_input"):
         missing = result.get("missing_fields", [])
@@ -129,8 +128,7 @@ def image(image_path, text, person_id):
         "error_message": None,
     }
 
-    with console.status("[bold green]AI 分析图片中..."):
-        result = app.invoke(initial_state)
+    result = run_app_with_dynamic_status(initial_state, "AI 分析图片中...")
 
     display_result(result)
 
@@ -158,8 +156,7 @@ def diet(text, person_id):
         "error_message": None,
     }
 
-    with console.status("[bold green]分析饮食中..."):
-        result = app.invoke(initial_state)
+    result = run_app_with_dynamic_status(initial_state, "分析饮食中...")
 
     display_result(result)
 
@@ -187,8 +184,7 @@ def exercise(text, person_id):
         "error_message": None,
     }
 
-    with console.status("[bold green]分析运动中..."):
-        result = app.invoke(initial_state)
+    result = run_app_with_dynamic_status(initial_state, "分析运动中...")
 
     display_result(result)
 
@@ -239,7 +235,38 @@ def show_user(person_id):
         title="用户信息"
     ))
 
+def run_app_with_dynamic_status(initial_state: dict, initial_status: str = "处理中...") -> dict:
+    """Run the LangGraph app with dynamic status updates based on node execution."""
+    # Node name to display status mapping
+    node_status_map = {
+        "route_input": "识别输入类型...",
+        "analyze_image": "AI 分析图片中...",
+        "classify_text": "分析文本内容...",
+        "check_user_info": "检查用户信息...",
+        "analyze_diet": "分析饮食卡路里...",
+        "analyze_exercise": "分析运动消耗...",
+        "health_review": "生成健康综合点评...",
+        "save_user_profile": "保存用户档案...",
+        "generate_result": "生成报告...",
+    }
+
+    final_state = initial_state.copy()
+
+    with console.status(f"[bold green]{initial_status}") as status:
+        for chunk in app.stream(initial_state):
+            for node_name, node_output in chunk.items():
+                # Update status text based on current node
+                display_status = node_status_map.get(node_name, initial_status)
+                status.update(f"[bold green]{display_status}")
+                # Merge the output into final state (handle None output)
+                if node_output is not None:
+                    final_state.update(node_output)
+
+    return final_state
+
+
 def display_result(result: dict):
+    """Display analysis result using rich."""
     """Display analysis result using rich."""
     if result.get("requires_user_input"):
         missing = result.get("missing_fields", [])
@@ -330,6 +357,17 @@ def display_result(result: dict):
             )
 
         console.print(Panel("\n".join(summary_parts), title="汇总"))
+
+        # Display health review if available
+        if analysis.health_review and analysis.health_review.get("review_points"):
+            review_points = analysis.health_review["review_points"]
+            overall = analysis.health_review.get("overall_assessment", "")
+
+            review_content = "\n".join(f"• {point}" for point in review_points)
+            if overall:
+                review_content = f"[bold]{overall}[/bold]\n\n{review_content}"
+
+            console.print(Panel(review_content, title="💡 健康综合点评", style="blue"))
 
         if analysis.recommendations:
             console.print(Panel(

@@ -19,6 +19,7 @@ class CalorieState(TypedDict):
     content_type: Optional[ContentType]
     analyzed_foods: Optional[List[FoodItem]]
     analyzed_exercise: Optional[List[ExerciseItem]]
+    health_review: Optional[dict]  # Health review from HealthReviewAgent
 
     # Classification flags
     _has_diet: bool

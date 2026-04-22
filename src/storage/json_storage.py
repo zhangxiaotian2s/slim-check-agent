@@ -61,6 +61,17 @@ class JSONUserStorage:
                 users.append(f[:-5])  # Remove .json extension
         return users
 
+    def load_all(self) -> list[UserProfile]:
+        """Load all user profiles."""
+        profiles = []
+        for person_id in self.list_users():
+            profile = self.load(person_id)
+            if profile:
+                profiles.append(profile)
+        # Sort by created_at descending (newest first)
+        profiles.sort(key=lambda p: p.created_at if hasattr(p, 'created_at') and p.created_at else "", reverse=True)
+        return profiles
+
 # Global singleton instance
 _storage: Optional[JSONUserStorage] = None
 

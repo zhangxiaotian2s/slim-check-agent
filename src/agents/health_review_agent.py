@@ -145,10 +145,23 @@ class HealthReviewAgent(BaseAgent):
 
             self.logger.info(f"Health review generated: {len(review_points)} points")
 
+            # 计算净卡路里和蛋白质数据（用于前端显示）
+            net_calories = total_calories - total_burned
+            protein_goal = 0
+            if user_profile and user_profile.weight_kg:
+                # 减重目标：每公斤体重 1.6-2.2g 蛋白质
+                protein_goal = int(user_profile.weight_kg * 1.8)
+
             return {
                 "health_review": {
-                    "review_points": review_points,
+                    # 匹配前端字段名
+                    "net_calories": net_calories,
+                    "total_calories_in": total_calories,
+                    "total_calories_out": total_burned,
+                    "protein_current": total_protein,
+                    "protein_goal": protein_goal,
                     "overall_assessment": overall_assessment,
+                    "recommendations": review_points,  # review_points -> recommendations
                 }
             }
 

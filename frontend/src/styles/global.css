@@ -1,0 +1,494 @@
+:root {
+  --color-near-black: #080808;
+  --color-webflow-blue: #146ef5;
+  --color-blue-400: #3b89ff;
+  --color-blue-300: #006acc;
+  --color-button-hover-blue: #0055d4;
+
+  --color-purple: #7a3dff;
+  --color-pink: #ed52cb;
+  --color-green: #00d722;
+  --color-orange: #ff6b00;
+  --color-yellow: #ffae13;
+  --color-red: #ee1d36;
+
+  --color-gray-800: #222222;
+  --color-gray-700: #363636;
+  --color-gray-300: #ababab;
+  --color-mid-gray: #5a5a5a;
+  --color-border-gray: #d8d8d8;
+  --color-border-hover: #898989;
+
+  --color-white: #ffffff;
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+
+  --shadow-cascade:
+    rgba(0, 0, 0, 0) 0px 84px 24px,
+    rgba(0, 0, 0, 0.01) 0px 54px 22px,
+    rgba(0, 0, 0, 0.04) 0px 30px 18px,
+    rgba(0, 0, 0, 0.08) 0px 13px 13px,
+    rgba(0, 0, 0, 0.09) 0px 3px 7px;
+
+  --shadow-subtle:
+    rgba(0, 0, 0, 0.04) 0px 30px 18px,
+    rgba(0, 0, 0, 0.08) 0px 13px 13px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 50%;
+
+  --space-1: 1px;
+  --space-2: 2.4px;
+  --space-3: 3.2px;
+  --space-4: 4px;
+  --space-5: 5.6px;
+  --space-6: 6px;
+  --space-7: 7.2px;
+  --space-8: 8px;
+  --space-9: 9.6px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  --font-family: 'WF Visual Sans Variable', Arial, system-ui, sans-serif;
+  --font-family-mono: 'Inconsolata', ui-monospace, monospace;
+
+  --font-weight-display: 600;
+  --font-weight-heading: 600;
+  --font-weight-body: 500;
+  --font-weight-regular: 400;
+  --font-weight-label: 500;
+  --font-weight-button: 500;
+
+  --font-size-display-hero: 80px;
+  --font-size-section-heading: 56px;
+  --font-size-subheading: 32px;
+  --font-size-feature-title: 24px;
+  --font-size-body: 20px;
+  --font-size-body-standard: 16px;
+  --font-size-button: 16px;
+  --font-size-uppercase-label: 15px;
+  --font-size-caption: 14px;
+  --font-size-badge: 12.8px;
+  --font-size-micro: 10px;
+
+  --line-height-display: 1.04;
+  --line-height-subheading: 1.30;
+  --line-height-body: 1.40;
+  --line-height-body-standard: 1.60;
+
+  --letter-spacing-display: -0.8px;
+  --letter-spacing-body-standard: -0.16px;
+  --letter-spacing-uppercase-label: 1.5px;
+  --letter-spacing-micro: 1px;
+
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  --bp-mobile: 479px;
+  --bp-tablet: 768px;
+  --bp-desktop: 992px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-body-standard);
+  line-height: var(--line-height-body-standard);
+  letter-spacing: var(--letter-spacing-body-standard);
+  color: var(--color-near-black);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-display);
+  color: var(--color-near-black);
+}
+
+h1 {
+  font-size: var(--font-size-section-heading);
+  letter-spacing: var(--letter-spacing-display);
+}
+
+h2 {
+  font-size: var(--font-size-subheading);
+  line-height: var(--line-height-subheading);
+}
+
+h3 {
+  font-size: var(--font-size-feature-title);
+  line-height: var(--line-height-subheading);
+}
+
+p {
+  color: var(--color-gray-700);
+  margin-bottom: var(--space-16);
+}
+
+a {
+  color: var(--color-webflow-blue);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-button-hover-blue);
+}
+
+button {
+  font-family: var(--font-family);
+  font-size: var(--font-size-button);
+  font-weight: var(--font-weight-button);
+  line-height: var(--line-height-body-standard);
+  letter-spacing: var(--letter-spacing-body-standard);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all var(--transition-normal);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-webflow-blue);
+  outline-offset: 2px;
+}
+
+input, textarea, select {
+  font-family: var(--font-family);
+  font-size: var(--font-size-body-standard);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-near-black);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  padding: var(--space-12) var(--space-16);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-webflow-blue);
+  box-shadow: 0 0 0 3px rgba(20, 110, 245, 0.1);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-gray-300);
+}
+
+code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-caption);
+  background-color: rgba(20, 110, 245, 0.05);
+  color: var(--color-webflow-blue);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-md);
+}
+
+.uppercase-label {
+  font-size: var(--font-size-uppercase-label);
+  font-weight: var(--font-weight-label);
+  line-height: 1.30;
+  letter-spacing: var(--letter-spacing-uppercase-label);
+  text-transform: uppercase;
+  color: var(--color-gray-700);
+}
+
+.badge {
+  font-size: var(--font-size-badge);
+  font-weight: 550;
+  line-height: 1.20;
+  text-transform: uppercase;
+  background-color: rgba(20, 110, 245, 0.1);
+  color: var(--color-webflow-blue);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+}
+
+.micro-label {
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-label);
+  line-height: 1.30;
+  letter-spacing: var(--letter-spacing-micro);
+  text-transform: uppercase;
+  color: var(--color-gray-300);
+}
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  padding: var(--space-24);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-normal);
+}
+
+.card:hover {
+  border-color: var(--color-border-hover);
+}
+
+.btn-primary {
+  background-color: var(--color-webflow-blue);
+  color: var(--color-white);
+  padding: var(--space-12) var(--space-24);
+  border-radius: var(--radius-md);
+  transform: translate(0, 0);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-button-hover-blue);
+  transform: translate(6px, 0);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-near-black);
+  padding: var(--space-12) var(--space-24);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-gray);
+  transform: translate(0, 0);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-border-hover);
+  transform: translate(6px, 0);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-near-black);
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-md);
+}
+
+.btn-ghost:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-gray);
+}
+
+.btn-icon:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-subtle);
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-24);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-8 {
+  gap: var(--space-8);
+}
+
+.gap-16 {
+  gap: var(--space-16);
+}
+
+.gap-24 {
+  gap: var(--space-24);
+}
+
+.gap-32 {
+  gap: var(--space-32);
+}
+
+.py-16 {
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-16);
+}
+
+.py-24 {
+  padding-top: var(--space-24);
+  padding-bottom: var(--space-24);
+}
+
+.py-32 {
+  padding-top: var(--space-32);
+  padding-bottom: var(--space-32);
+}
+
+.py-48 {
+  padding-top: var(--space-48);
+  padding-bottom: var(--space-48);
+}
+
+.py-64 {
+  padding-top: var(--space-64);
+  padding-bottom: var(--space-64);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-gray {
+  color: var(--color-gray-700);
+}
+
+.text-muted {
+  color: var(--color-gray-300);
+}
+
+.text-blue {
+  color: var(--color-webflow-blue);
+}
+
+.text-green {
+  color: var(--color-green);
+}
+
+.text-orange {
+  color: var(--color-orange);
+}
+
+.text-red {
+  color: var(--color-red);
+}
+
+.bg-blue-10 {
+  background-color: rgba(20, 110, 245, 0.1);
+}
+
+.bg-green-10 {
+  background-color: rgba(0, 215, 34, 0.1);
+}
+
+.bg-orange-10 {
+  background-color: rgba(255, 107, 0, 0.1);
+}
+
+.bg-red-10 {
+  background-color: rgba(238, 29, 54, 0.1);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-border-gray);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--color-webflow-blue);
+  transition: width var(--transition-normal);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@media (max-width: 992px) {
+  h1 {
+    font-size: 40px;
+  }
+
+  h2 {
+    font-size: 28px;
+  }
+
+  .container {
+    padding: 0 var(--space-16);
+  }
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  body {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 479px) {
+  h1 {
+    font-size: 28px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: var(--space-12) var(--space-16);
+  }
+}

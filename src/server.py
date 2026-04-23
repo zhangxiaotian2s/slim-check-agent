@@ -28,6 +28,24 @@ async def _init_directories():
         os.makedirs(dir_path, exist_ok=True)
 
 
+async def _init_database():
+    """初始化数据库连接"""
+    settings = get_settings()
+    if settings.STORAGE_TYPE.lower() == "mysql":
+        try:
+            from src.storage.database import test_database_connection, init_database
+            # 先测试连接
+            if test_database_connection():
+                # 初始化表结构
+                init_database()
+                logger.info("Database initialization completed")
+            else:
+                logger.warning("Database connection test failed, please check configuration")
+        except Exception as e:
+            logger.error(f"Database initialization error: {e}")
+            logger.warning("Please ensure MySQL server is running and accessible")
+
+
 async def _init_services():
     """初始化服务"""
     from src.utils.request_manager import request_manager
@@ -52,11 +70,15 @@ async def lifespan(app: FastAPI):
         logger.info("=" * 60)
         logger.info("SlimCheck API Server starting...")
         logger.info(f"Model: {settings.OPENAI_MODEL}")
+        logger.info(f"Storage type: {settings.STORAGE_TYPE.upper()}")
         logger.info(f"Max concurrent requests: {settings.MAX_CONCURRENT_REQUESTS}")
         logger.info("=" * 60)
 
         # 初始化目录
         await _init_directories()
+
+        # 初始化数据库
+        await _init_database()
 
         # 初始化服务
         await _init_services()

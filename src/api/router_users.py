@@ -126,7 +126,7 @@ async def list_users():
     列出所有已注册的用户完整信息
     """
     storage = get_user_storage()
-    profiles = storage.load_all()
+    profiles = storage.list_all()
 
     users_data = [_profile_to_response(p) for p in profiles]
     data = UserListData(

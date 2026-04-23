@@ -1,12 +1,13 @@
 import json
 import os
-from typing import Optional
+from typing import Optional, List
 from src.models import UserProfile
 from src.utils.logger import logger
 
 # Get absolute path relative to this file
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../../data/users"))
+
 
 class JSONUserStorage:
     """JSON file storage for user profiles."""
@@ -51,33 +52,27 @@ class JSONUserStorage:
             return True
         return False
 
-    def list_users(self) -> list[str]:
-        """List all saved user IDs."""
-        if not os.path.exists(self.data_dir):
-            return []
-        users = []
-        for f in os.listdir(self.data_dir):
-            if f.endswith(".json") and not f.startswith("."):
-                users.append(f[:-5])  # Remove .json extension
-        return users
-
-    def load_all(self) -> list[UserProfile]:
+    def list_all(self) -> List[UserProfile]:
         """Load all user profiles."""
         profiles = []
-        for person_id in self.list_users():
-            profile = self.load(person_id)
-            if profile:
-                profiles.append(profile)
+        if not os.path.exists(self.data_dir):
+            return profiles
+        for f in os.listdir(self.data_dir):
+            if f.endswith(".json") and not f.startswith("."):
+                person_id = f[:-5]  # Remove .json extension
+                profile = self.load(person_id)
+                if profile:
+                    profiles.append(profile)
         # Sort by created_at descending (newest first)
         profiles.sort(key=lambda p: p.created_at if hasattr(p, 'created_at') and p.created_at else "", reverse=True)
         return profiles
 
-# Global singleton instance
-_storage: Optional[JSONUserStorage] = None
+    def count(self) -> int:
+        """Count total users"""
+        if not os.path.exists(self.data_dir):
+            return 0
+        return len([f for f in os.listdir(self.data_dir) if f.endswith(".json") and not f.startswith(".")])
 
-def get_user_storage() -> JSONUserStorage:
-    """Get singleton storage instance."""
-    global _storage
-    if _storage is None:
-        _storage = JSONUserStorage()
-    return _storage
+    def exists(self, person_id: str) -> bool:
+        """Check if user exists"""
+        return os.path.exists(self._get_user_path(person_id))

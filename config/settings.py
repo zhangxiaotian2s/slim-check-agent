@@ -63,9 +63,23 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_MINUTE: int = 30
 
     # ========== 数据存储 ==========
+    STORAGE_TYPE: str = "mysql"  # json / mysql
     DATA_DIR: str = "./data"
     USERS_DIR: str = "./data/users"
     LOGS_DIR: str = "./data/logs"
+
+    # ========== MySQL 数据库 ==========
+    DB_HOST: str = "172.32.6.110"
+    DB_PORT: int = 30308
+    DB_USER: str = "root"
+    DB_PASSWORD: str = "root"
+    DB_NAME: str = "db_slimcheck"
+    DB_CHARSET: str = "utf8mb4"
+
+    @property
+    def DATABASE_URL(self) -> str:
+        """构建数据库连接URL"""
+        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset={self.DB_CHARSET}"
 
     # ========== 健康检查 ==========
     HEALTH_CHECK_LIVENESS_THRESHOLD: int = 3

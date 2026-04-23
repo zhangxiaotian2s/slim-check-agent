@@ -122,12 +122,14 @@ Content-Type: application/json
 {
   "gender": "male",
   "age": 30,
-  "height": 175,
-  "weight": 75,
+  "height_cm": 175,
+  "weight_kg": 75,
   "activity_level": "moderate",
   "name": "张三"
 }
 ```
+
+**注意字段名**：使用 `height_cm` 和 `weight_kg`（不是 `height`, `weight`）
 
 ### 3. 请求管理
 
@@ -186,6 +188,48 @@ slim-check-agent/
 └── README.md
 ```
 
+## 🗄️ 数据库配置
+
+### MySQL 数据表
+
+系统使用 MySQL 存储用户健康档案数据，建表语句如下：
+
+```sql
+CREATE TABLE IF NOT EXISTS `tb_user_profiles` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  `person_id` VARCHAR(32) NOT NULL UNIQUE COMMENT '用户唯一标识',
+  `name` VARCHAR(100) COMMENT '用户姓名',
+  `gender` ENUM('male', 'female') NOT NULL COMMENT '性别',
+  `age` INT NOT NULL COMMENT '年龄',
+  `height_cm` FLOAT NOT NULL COMMENT '身高（厘米）',
+  `weight_kg` FLOAT NOT NULL COMMENT '体重（公斤）',
+  `activity_level` ENUM('sedentary', 'light', 'moderate', 'active', 'very_active') NOT NULL DEFAULT 'moderate' COMMENT '活动水平',
+  `bmi` FLOAT NOT NULL COMMENT '身体质量指数',
+  `bmr` FLOAT NOT NULL COMMENT '基础代谢率',
+  `daily_calorie_needs` FLOAT NOT NULL COMMENT '每日所需热量',
+  `health_assessment` VARCHAR(200) NOT NULL COMMENT '健康评估',
+  `created_at` DATETIME NOT NULL COMMENT '创建时间',
+  `updated_at` DATETIME NOT NULL COMMENT '更新时间',
+  INDEX `idx_person_id` (`person_id`),
+  INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户健康档案表';
+```
+
+### 字段说明
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `person_id` | VARCHAR(32) | 用户唯一标识，由系统自动生成 |
+| `gender` | ENUM | 性别：`male` 男, `female` 女 |
+| `activity_level` | ENUM | 活动水平：`sedentary` 久坐, `light` 轻度, `moderate` 中度, `active` 活跃, `very_active` 非常活跃 |
+| `bmi` | FLOAT | 身体质量指数，自动计算 |
+| `bmr` | FLOAT | 基础代谢率，自动计算 |
+| `daily_calorie_needs` | FLOAT | 每日所需热量，自动计算 |
+
+### 自动初始化
+
+启动服务时，系统会自动通过 SQLAlchemy 创建表结构，无需手动执行 SQL。
+
 ## ⚙️ 环境变量配置
 
 | 变量 | 默认值 | 说明 |
@@ -193,6 +237,7 @@ slim-check-agent/
 | `OPENAI_BASE_URL` | - | LLM API 地址 |
 | `OPENAI_API_KEY` | - | API Key |
 | `OPENAI_MODEL` | `doubao-seed-2.0-pro` | 模型名称 |
+| `DATABASE_URL` | - | MySQL 连接 URL，格式：`mysql+pymysql://user:pass@host:port/dbname` |
 | `MAX_CONCURRENT_REQUESTS` | `10` | 最大并发请求数 |
 | `REQUEST_TIMEOUT_SECONDS` | `120` | 单请求超时时间 |
 | `CORS_ORIGINS` | `*` | CORS 允许的来源 |
@@ -293,7 +338,10 @@ curl http://localhost:8083/api/v1/health
 # 注册用户
 curl -X POST http://localhost:8083/api/v1/users/register \
   -H "Content-Type: application/json" \
-  -d '{"gender":"male","age":30,"height":175,"weight":75}'
+  -d '{"gender":"male","age":30,"height_cm":175,"weight_kg":75}'
+
+# 列出用户
+curl http://localhost:8083/api/v1/users
 
 # 流式分析（使用浏览器或 EventSource 客户端）
 ```

@@ -1,10 +1,10 @@
 # SlimCheck-agent
 
-基于 Python + LangGraph 开发的卡路里管理多智能体系统。
+基于 Python + LangGraph 开发的卡路里管理多智能体系统，支持 Web API 服务和命令行两种使用方式。
 
 通过多个专业智能体分工协作，分析饮食和运动的卡路里，并结合个人身体信息给出健康建议和综合点评。
 
-## 功能特点
+## ✨ 功能特点
 
 ### 输入方式
 - ✅ **纯食物图片分析** - 上传食物图片，AI自动识别食物种类并估算份量
@@ -12,6 +12,11 @@
 - ✅ **纯文字饮食分析** - 文字描述你吃了什么，直接计算卡路里
 - ✅ **纯文字运动分析** - 文字描述你做了什么运动，计算消耗卡路里
 - ✅ **同时包含饮食和运动** - 支持一句话同时描述饮食和运动，自动分别分析
+
+### 部署方式
+- ✅ **Web API 服务** - FastAPI 服务，支持 SSE 流式输出
+- ✅ **前端界面** - Vue3 + TypeScript 单页应用
+- ✅ **命令行工具** - CLI 命令行工具（保留传统方式）
 
 ### 多智能体架构
 
@@ -24,23 +29,76 @@
 | **健康综合点评专家** | 基于饮食/运动分析结果，提供专业健康点评和个性化建议 |
 
 ### 核心功能
+- ✅ **流式输出** - SSE 实时返回分析进度和中间结果，类似 ChatGPT 打字机效果
+- ✅ **实时进度** - 前端实时显示 AI 思考过程和分析进度
 - ✅ **健康综合点评** - 基于AI的专业健康评估和个性化建议
 - ✅ **多维度分析** - 同时支持饮食分析、运动分析或两者结合分析
+- ✅ **并发控制** - 支持多请求并行处理，内置限流和超时机制
+- ✅ **可取消请求** - 支持中途取消请求，节约 LLM 资源
+- ✅ **请求追踪** - UUID 全链路追踪，可随时查询请求状态
+- ✅ **用户档案管理** - 支持用户注册、查询、列表、删除
+- ✅ **数据存储可扩展** - 支持 JSON 文件存储 和 MySQL 数据库存储
 - ✅ **提示词独立维护** - 所有提示词都放在单独的 `src/prompts/` 目录，方便优化调整
 - ✅ **清晰的日志系统** - 日志同时输出到控制台和 `data/logs/` 文件
-- ✅ **本地数据存储** - 用户档案以JSON格式保存在 `data/users/`，隐私可控
-- ✅ **个性化分析** - 如果提供个人ID，会结合你的身体数据给出个性化评估
-- ✅ **美观命令行界面** - 使用 Rich 美化表格输出，阅读舒适
+- ✅ **Docker 部署** - 支持 Docker Compose 一键容器化部署
+- ✅ **健康检查** - Kubernetes 友好的 liveness/readiness 探针
 
-## 技术架构
+---
+
+## 🚀 快速开始
+
+### 方式一：一键启动（推荐）
+
+```bash
+# 1. 配置环境变量
+cp .env.example .env
+# 编辑 .env，填入你的 API Key 和数据库配置
+
+# 2. 启动后端服务
+./start.sh
+```
+
+服务启动后访问：
+- **后端 API**: http://localhost:8083
+- **API 文档**: http://localhost:8083/docs
+- **前端界面**: cd frontend && npm install && npm run dev (http://localhost:5173)
+
+### 方式二：Docker Compose
+
+```bash
+# 1. 配置环境变量
+cp .env.example .env
+# 编辑 .env
+
+# 2. 启动服务
+docker-compose up -d
+
+# 3. 查看日志
+docker-compose logs -f slimcheck-api
+
+# 4. 停止服务
+docker-compose down
+```
+
+---
+
+## 🏗️ 技术架构
 
 ### 技术栈
-- **框架**: LangGraph (多智能体工作流编排)
-- **LLM**: 兼容 OpenAI 接口 (火山引擎豆包、OpenAI 等)
-- **图片处理**: Pillow
-- **CLI**: Click + Rich
 
-### 项目结构
+| 层级 | 技术选型 |
+|------|----------|
+| **前端** | Vue 3 + TypeScript + Vite |
+| **后端框架** | FastAPI + Uvicorn |
+| **多智能体** | LangGraph |
+| **LLM 接口** | 兼容 OpenAI 格式（火山引擎豆包、OpenAI 等） |
+| **数据存储** | MySQL / JSON 文件 |
+| **流式输出** | SSE (Server-Sent Events) |
+| **图片处理** | Pillow |
+| **数据验证** | Pydantic v2 |
+| **部署** | Docker + Docker Compose |
+
+### 完整项目结构
 
 ```
 .
@@ -48,12 +106,20 @@
 ├── .env.example            # 环境配置示例
 ├── .gitignore
 ├── requirements.txt        # Python 依赖
+├── start.sh               # 后端启动脚本
+├── Dockerfile             # Docker 镜像
+├── docker-compose.yml     # Docker Compose 配置
 ├── README.md              # 本文档
+├── API_SERVER.md          # API 服务详细文档
+├── API_DOCUMENTATION.md   # 完整 API 接口文档
+├── DESIGN.md              # 设计文档
 ├── config/
-│   └── __init__.py        # 配置加载
+│   ├── __init__.py        # 配置单例
+│   └── settings.py        # Pydantic 配置管理
 ├── src/
 │   ├── __init__.py
-│   ├── main.py            # CLI 入口
+│   ├── server.py          # ✅ FastAPI 服务入口
+│   ├── main.py            # CLI 命令行入口（保留）
 │   ├── agents/            # 智能体实现
 │   │   ├── __init__.py
 │   │   ├── base_agent.py               # 智能体基类
@@ -76,294 +142,179 @@
 │   │   └── calorie_graph.py        # 流程图构建
 │   ├── models/            # 数据模型
 │   │   ├── __init__.py
+│   │   ├── api_models.py           # ✅ API 请求/响应模型
 │   │   ├── user_profile.py        # 用户档案模型
 │   │   ├── food_item.py          # 食物项模型
 │   │   ├── exercise_item.py      # 运动项模型
 │   │   └── analysis_result.py    # 分析结果模型
-│   ├── storage/           # 存储层
+│   ├── api/               # ✅ API 路由
 │   │   ├── __init__.py
-│   │   └── json_storage.py       # JSON 文件存储
+│   │   ├── router_health.py        # 健康检查
+│   │   ├── router_analyze.py       # 流式分析
+│   │   ├── router_users.py         # 用户管理
+│   │   └── router_requests.py      # 请求管理
+│   ├── storage/           # ✅ 存储层（可扩展）
+│   │   ├── __init__.py             # 存储工厂
+│   │   ├── json_storage.py       # JSON 文件存储
+│   │   └── database.py          # MySQL 数据库存储
 │   └── utils/             # 工具函数
 │       ├── __init__.py
 │       ├── logger.py            # 日志系统配置
+│       ├── llm_client.py        # LLM 客户端封装
 │       ├── image_utils.py       # 图片处理工具
-│       └── llm_client.py        # LLM 客户端封装
-├── data/
-│   ├── users/             # 用户档案存储目录
-│   └── logs/              # 日志文件目录
-├── examples/             # 示例图片
-│   └── test.jpg
-└── tests/                # 测试代码
+│       ├── request_manager.py   # ✅ 请求管理器（并发控制）
+│       └── sse_utils.py        # ✅ SSE 事件工具
+├── frontend/              # ✅ Vue3 前端
+│   ├── src/
+│   │   ├── App.vue
+│   │   ├── main.ts
+│   │   ├── api/client.ts         # API 客户端
+│   │   ├── views/
+│   │   │   ├── Home.vue         # 首页
+│   │   │   ├── Analyze.vue      # 分析页面（核心）
+│   │   │   ├── Users.vue        # 用户管理
+│   │   │   └── Requests.vue     # 请求管理
+│   │   └── router/index.ts      # Vue Router
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+└── data/                  # 数据目录（JSON存储时使用）
+    ├── users/             # 用户档案存储目录
+    └── logs/              # 日志文件目录
 ```
 
-### 工作流程图
+---
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                         开始 (START)                             │
-└────────────┬─────────────────────────────────────────────────────┘
-             │
-             ▼
-      ┌─────────────────┐
-      │  路由节点       │  判断输入类型
-      └────────┬────────┘
-               │
-    ┌──────────┴──────────┐
-    │                     │
-    ▼                     ▼
-┌───────────────┐  ┌──────────────────┐
-│ 图片分析专家  │  │  纯文字分类识别  │
-└────────┬───────┘  └─────────┬────────┘
-             │                 │
-             │          ┌──────┼──────┐
-             │          │      │      │
-             │          │   注册  饮食  运动
-             │          │      │      │
-             │          ▼      ▼      ▼
-             │  ┌─────────────────────────────┐
-             │  │ 检查信息完整性 / 加载用户信息 │
-             │  └──────────────┬──────────────┘
-             │                 │
-             └─────────────────┼───────────────────────────────────────────
-                              │
-             ┌────────────────┼────────────────┐
-             ▼                ▼                ▼
-       ┌────────────┐ ┌────────────┐ ┌────────────────┐
-       │ 饮食分析 │ │ 运动分析 │ │  保存用户信息  │
-       └────────┬───┘ └────────┬───┘ └────────┬───────────┘
-                │                │                │
-                └────────────────┼────────────────┘
-                                 ▼
-                         ┌─────────────────┐
-                         │ 健康综合点评专家 │  ← 新增功能
-                         └────────┬────────┘
-                                 ▼
-                           ┌──────────────┐
-                           │  汇总结果输出 │
-                           └────────┬─────┘
-                                    │
-                                    ▼
-                           ┌──────────────┐
-                           │     结束      │
-                           └──────────────┘
-```
+## ⚙️ 环境变量配置
 
-**说明**：
-- 如果输入同时包含饮食和运动，会先分析饮食，然后分析运动，再进行健康综合点评
-- 健康综合点评会结合用户档案给出个性化建议
-- 如果信息不完整（注册时），会直接返回要求用户补充
-- 所有节点错误都会被捕获并友好显示给用户
-
-## 安装部署
-
-### 1. 安装依赖
-
-```bash
-pip install -r requirements.txt
-```
-
-依赖列表：
-- `langgraph>=0.2.0` - 多智能体框架
-- `openai>=1.60.0` - OpenAI 兼容客户端
-- `python-dotenv>=1.0.0` - 加载环境变量
-- `pydantic>=2.10.0` - 数据验证
-- `Pillow>=11.0.0` - 图片处理
-- `click>=8.2.0` - 命令行框架
-- `rich>=14.0.0` - 美化输出
-
-### 2. 配置环境变量
-
-复制示例文件：
-```bash
-cp .env.example .env
-```
-
-编辑 `.env`：
 ```env
-OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3  # 你的API地址
-OPENAI_API_KEY=your-api-key                              # 你的API Key
-OPENAI_MODEL=doubao-seed-2.0-pro                         # 模型名称
+# ============== LLM 配置 ==============
+OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+OPENAI_API_KEY=your_api_key_here
+OPENAI_MODEL=doubao-seed-2.0-pro
+
+# ============== 服务配置 ==============
+HOST=0.0.0.0
+PORT=8083
+LOG_LEVEL=INFO
+DEBUG=false
+
+# ============== CORS 配置 ==============
+CORS_ORIGINS=*
+
+# ============== 并发控制 ==============
+MAX_CONCURRENT_REQUESTS=10
+REQUEST_TIMEOUT_SECONDS=120
+COMPLETED_REQUEST_TTL_HOURS=1
+
+# ============== 认证配置 ==============
+API_KEY_ENABLED=false
+# API_KEY=your_secret_api_key_here
+
+# ============== 限流配置 ==============
+RATE_LIMIT_ENABLED=false
+RATE_LIMIT_PER_MINUTE=30
+
+# ============== 数据存储 ==============
+# 存储类型: json / mysql
+STORAGE_TYPE=mysql
+DATA_DIR=./data
+USERS_DIR=./data/users
+LOGS_DIR=./data/logs
+
+# ============== MySQL 数据库 ==============
+DB_HOST=172.32.6.110
+DB_PORT=30308
+DB_USER=root
+DB_PASSWORD=root
+DB_NAME=db_slimcheck
+DB_CHARSET=utf8mb4
 ```
 
-> 本项目兼容任何 OpenAI 格式的 API，包括：
-> - 火山引擎豆包
-> - OpenAI GPT-4V/GPT-4o
-> - 其他兼容供应商
+---
 
-**注意**：需要使用支持视觉能力的模型才能分析图片。
+## 🗄️ 数据存储
 
-## 使用方法
+### 存储方式切换
 
-### 1. 注册创建个人健康档案
+通过 `.env` 配置文件切换：
 
-在开始分析前，建议先创建个人档案，这样分析会更个性化：
+```ini
+# MySQL 数据库存储（推荐生产环境）
+STORAGE_TYPE=mysql
 
-```bash
-python -m src.main register \
-  --gender male \
-  --age 30 \
-  --height 175 \
-  --weight 75 \
-  --name "张三"
+# 或者 JSON 文件存储（适合开发/单机部署）
+STORAGE_TYPE=json
 ```
 
-参数说明：
-- `--gender`: 性别，`male` 或 `female` **(必填)**
-- `--age`: 年龄 **(必填)**
-- `--height`: 身高，单位厘米 **(必填)**
-- `--weight`: 体重，单位公斤 **(必填)**
-- `--activity`: 活动水平 (可选，默认 `moderate`)
-  - `sedentary`: 久坐（很少运动）
-  - `light`: 轻度运动（每周1-3次）
-  - `moderate`: 中度运动（每周3-5次）**默认**
-  - `active`: 活跃运动（每周6-7次）
-  - `very_active`: 非常活跃（每日高强度运动）
-- `--name`: 姓名 (可选)
+### MySQL 数据库模式
 
-**输出示例**：
+**数据库表结构** (`tb_user_profiles`)：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | BIGINT | 主键自增 |
+| `person_id` | VARCHAR(32) | 用户唯一标识（UUID短码） |
+| `name` | VARCHAR(100) | 用户姓名 |
+| `gender` | ENUM | 性别：male/female |
+| `age` | INT | 年龄 |
+| `height_cm` | FLOAT | 身高（厘米） |
+| `weight_kg` | FLOAT | 体重（公斤） |
+| `activity_level` | ENUM | 活动水平 |
+| `bmi` | FLOAT | 身体质量指数 |
+| `bmr` | FLOAT | 基础代谢率（千卡/天） |
+| `daily_calorie_needs` | FLOAT | 每日所需卡路里 |
+| `health_assessment` | VARCHAR(200) | 健康评估结论 |
+| `created_at` | DATETIME | 创建时间 |
+| `updated_at` | DATETIME | 更新时间 |
+
+**字段名注意事项**：
+- 用户注册接口字段：`height_cm`, `weight_kg`（不是 `height`, `weight`）
+- 所有 API 响应都使用 `height_cm`, `weight_kg` 格式
+
+---
+
+## 📊 并发控制机制
+
 ```
-╭───────────── 注册结果 ─────────────╮
-│ OK 用户档案创建成功                 │
-│                                  │
-│ 人物ID: aa17cb94                  │
-│ 姓名: 张三                        │
-│ 性别: 男                          │
-│ 年龄: 30 岁                       │
-│ 身高: 175.0 cm                   │
-│ 体重: 75.0 kg                    │
-│ BMI: 24.49                        │
-│ 基础代谢: 1699 大卡/天            │
-│ 每日所需: 2633 大卡/天            │
-│ 评估: 超重，建议控制热量摄入并增加运动 │
-│                                  │
-│ 请保存好人物ID，后续分析可以使用 --person-id 参数 │
-╰──────────────────────────────────────╯
-```
-
-记住生成的 `人物ID`，后续分析可以使用 `--person-id` 参数获得个性化建议。
-
-### 2. 列出所有用户
-
-```bash
-python -m src.main list-users
-```
-
-### 3. 查看用户信息
-
-```bash
-python -m src.main show-user <person-id>
-```
-
-### 4. 图片分析食物
-
-```bash
-# 纯图片
-python -m src.main image examples/test.jpg
-
-# 图片 + 文字描述
-python -m src.main image examples/test.jpg --text "这是我今天的午餐"
-
-# 带个人ID获取个性化分析和健康点评
-python -m src.main image examples/test.jpg --person-id <person-id>
+并发请求限制: 10（可配置）
+         │
+         ▼
+  ┌─────────────┐
+  │  请求队列   │ 等待中的请求
+  └──────┬──────┘
+         │
+  ┌──────▼──────┐
+  │ 执行中的请求 │ 最多 10 个并行
+  └──────┬──────┘
+         │
+         ▼
+  ┌─────────────┐
+  │ LLM 客户端池 │
+  └─────────────┘
 ```
 
-### 5. 纯文字分析饮食
+- 超过并发限制的请求进入等待队列
+- 等待超时（30秒）返回 429 错误
+- 请求可随时取消，立即释放槽位
 
-```bash
-python -m src.main diet "一个肉包子，一杯豆浆，一个煮鸡蛋"
+---
 
-# 带个人ID
-python -m src.main diet "早餐两个鸡蛋两根油条一碗豆浆" --person-id <person-id>
+## 🤖 智能体使用的计算公式
 
-# 同时包含早餐午餐晚餐和运动 - 自动分别分析并给出综合点评
-python -m src.main diet "我早饭吃了两个鸡蛋两根油条一碗豆浆 午餐吃了一大碗板面一个鸡蛋，晚餐吃了一大份黄焖鸡，晚饭后我慢跑了半小时" --person-id <person-id>
-```
+### BMI 计算公式
 
-### 6. 纯文字分析运动
-
-```bash
-python -m src.main exercise "慢跑30分钟"
-
-# 带个人ID获取个性化健康点评
-python -m src.main exercise "慢跑30分钟" --person-id <person-id>
-```
-
-### 输出说明
-
-**饮食分析输出**：
-- 表格显示每种食物的名称、重量、卡路里、蛋白质、碳水、脂肪
-- 汇总显示总计卡路里和营养素
-- 如果提供了个人ID，会显示占每日推荐摄入量的百分比
-
-**运动分析输出**：
-- 表格显示每种运动的名称、时长、强度、消耗卡路里
-- 汇总显示总消耗卡路里
-
-**健康综合点评输出**：
-- 💡 蓝色面板显示整体健康评估总结
-- 列出2-4条专业健康点评
-- 结合用户档案时会给出个性化建议
-
-**同时包含饮食和运动输出**：
-- 先显示食物表格，再显示运动表格
-- 汇总显示饮食总计和运动消耗
-- 自动计算净摄入卡路里
-- 健康综合点评（基于饮食+运动）
-
-**输出示例 - 健康综合点评**：
-```
-╭────────────────────────── 💡 健康综合点评 ──────────────────────────╮
-│ 整体饮食搭配合理，蛋白质摄入充足，但需注意控制总热量。                  │
-│                                                                      │
-│ • 本次蛋白质摄入量达标，有助于维持肌肉量和饱腹感                      │
-│ • 碳水化合物主要来自精米白面，建议适当增加全谷物比例                  │
-│ • 考虑到您BMI=24.49（超重），建议控制每餐热量在500-600大卡           │
-│ • 运动消耗300大卡，有效抵消了部分摄入，继续保持！                     │
-╰──────────────────────────────────────────────────────────────────────╯
-```
-
-## 数据存储
-
-### 用户档案存储
-
-每个用户档案保存为单独的JSON文件：
-```
-data/users/{person_id}.json
-```
-
-JSON格式示例：
-```json
-{
-  "person_id": "fc3582f5",
-  "name": "测试用户",
-  "gender": "male",
-  "age": 30,
-  "height_cm": 175.0,
-  "weight_kg": 75.0,
-  "activity_level": "moderate",
-  "bmi": 24.49,
-  "bmr": 1698.75,
-  "daily_calorie_needs": 2633.06,
-  "health_assessment": "超重，建议控制热量摄入并增加运动",
-  "created_at": "2026-04-20T22:08:56.388515",
-  "updated_at": "2026-04-20T22:08:56.388515"
-}
-```
-
-### 计算公式
-
-本项目使用标准的健康计算公式：
-
-**BMI计算公式**:
 ```
 BMI = 体重(kg) / (身高(m))^2
 ```
 
-**基础代谢率 (BMR) - Mifflin-St Jeor 公式**:
-- 男性: `BMR = 10 × 体重(kg) + 6.25 × 身高(cm) - 5 × 年龄 + 5`
-- 女性: `BMR = 10 × 体重(kg) + 6.25 × 身高(cm) - 5 × 年龄 - 161`
+### 基础代谢率 (BMR) - Mifflin-St Jeor 公式
 
-**每日所需卡路里**:
+- **男性**: `BMR = 10 × 体重(kg) + 6.25 × 身高(cm) - 5 × 年龄 + 5`
+- **女性**: `BMR = 10 × 体重(kg) + 6.25 × 身高(cm) - 5 × 年龄 - 161`
+
+### 每日所需卡路里
+
 ```
 每日所需 = BMR × 活动系数
 ```
@@ -375,45 +326,47 @@ BMI = 体重(kg) / (身高(m))^2
 - 活跃运动: 1.725
 - 非常活跃: 1.9
 
-## 提示词定制
+---
 
-所有提示词都独立存放在 `src/prompts/` 目录，你可以直接修改文件来优化效果：
+## 🔒 生产环境建议
 
-| 文件 | 用途 |
-|------|------|
-| `image_analyst_prompt.py` | 图片分析专家 - 指导如何识别食物和估算重量 |
-| `diet_analyst_prompt.py` | 饮食分析专家 - 指导如何计算卡路里和营养 |
-| `exercise_analyst_prompt.py` | 运动分析专家 - 指导如何计算卡路里消耗 |
-| `health_manager_prompt.py` | 健康管理专家 - 指导提取用户信息 |
-| `health_review_prompt.py` | 健康综合点评专家 - 指导如何给出健康建议 |
-| `router_prompt.py` | 输入分类器 - 识别输入是否包含饮食/运动/注册 |
+1. **启用认证**: 设置 `API_KEY_ENABLED=true` 并配置 `API_KEY`
+2. **配置 CORS**: 设置 `CORS_ORIGINS` 为你的前端域名
+3. **启用限流**: 设置 `RATE_LIMIT_ENABLED=true`
+4. **使用 MySQL**: 生产环境建议使用 MySQL 存储，替代 JSON 文件
+5. **使用 HTTPS**: 配置反向代理（Nginx/Caddy）提供 HTTPS
+6. **监控告警**: 接入 Prometheus + Grafana 监控
+7. **日志收集**: 结构化日志输出到 Loki/ELK
 
-修改后不需要重新安装，下次运行自动生效。
+---
 
-## 日志
+## 🧪 测试
 
-日志默认同时输出：
-- 控制台 INFO 级别
-- 文件 `data/logs/slimcheck_YYYYMMDD.log` DEBUG 级别
+```bash
+# 健康检查
+curl http://localhost:8083/api/v1/health
 
-你可以修改 `src/utils/logger.py` 调整日志级别。
+# 注册用户
+curl -X POST http://localhost:8083/api/v1/users/register \
+  -H "Content-Type: application/json" \
+  -d '{"gender":"male","age":30,"height_cm":175,"weight_kg":75}'
 
-## 常见问题
+# 列出用户
+curl http://localhost:8083/api/v1/users
 
-**Q: 图片分析不准怎么办？**
-A: 这取决于LLM模型的视觉能力。可以尝试修改 `src/prompts/image_analyst_prompt.py` 中的提示词改进效果。
+# 流式分析（使用浏览器或 EventSource 客户端）
+```
 
-**Q: 卡路里计算不准怎么办？**
-A: 卡路里计算是LLM根据通用营养数据库估算的，仅供参考。可以修改 `src/prompts/diet_analyst_prompt.py` 改进。
+---
 
-**Q: 健康点评不个性化怎么办？**
-A: 确保使用 `--person-id` 参数提供用户档案，这样健康点评专家会结合用户的BMI、健康状况等信息给出个性化建议。
+## 📚 相关文档
 
-**Q: 支持同时多张图片吗？**
-A: 目前一次只支持一张图片，多张图片需要多次调用。
+- **[API_SERVER.md](./API_SERVER.md)** - API 服务详细文档
+- **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - 完整 API 接口文档
+- **[DESIGN.md](./DESIGN.md)** - 系统设计文档
+- **[Frontend README](./frontend/README.md)** - 前端开发文档
 
-**Q: API调用失败/超时怎么办？**
-A: 检查 `.env` 中的API配置是否正确，网络是否连通，API Key是否有效。
+---
 
 ## License
 

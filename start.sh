@@ -20,13 +20,25 @@ fi
 # 检查并创建数据目录
 mkdir -p data/users data/logs
 
-# 启动开发服务器
-echo "📋 API Docs: http://localhost:8083/docs"
+# 加载环境变量
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
+# 使用环境变量中的配置，默认值设置
+HOST=${HOST:-0.0.0.0}
+PORT=${PORT:-8083}
+WORKERS=${WORKERS:-2}
+# uvicorn 需要小写日志级别
+LOG_LEVEL=$(echo ${LOG_LEVEL:-info} | tr '[:upper:]' '[:lower:]')
+
+echo "📋 API Docs: http://${HOST}:${PORT}/docs"
+echo "🔧 Workers: ${WORKERS}"
 echo "🔴 Press Ctrl+C to stop server"
 echo ""
 
 exec python3 -m uvicorn src.server:app \
-    --host 0.0.0.0 \
-    --port 8083 \
-    --reload \
-    --log-level info
+    --host ${HOST} \
+    --port ${PORT} \
+    --workers ${WORKERS} \
+    --log-level ${LOG_LEVEL}

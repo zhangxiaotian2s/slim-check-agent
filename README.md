@@ -40,7 +40,6 @@
 - ✅ **数据存储可扩展** - 支持 JSON 文件存储 和 MySQL 数据库存储
 - ✅ **提示词独立维护** - 所有提示词都放在单独的 `src/prompts/` 目录，方便优化调整
 - ✅ **清晰的日志系统** - 日志同时输出到控制台和 `data/logs/` 文件
-- ✅ **Docker 部署** - 支持 Docker Compose 一键容器化部署
 - ✅ **健康检查** - Kubernetes 友好的 liveness/readiness 探针
 
 ---
@@ -63,21 +62,14 @@ cp .env.example .env
 - **API 文档**: http://localhost:8083/docs
 - **前端界面**: cd frontend && npm install && npm run dev (http://localhost:5173)
 
-### 方式二：Docker Compose
+### 直接使用 uvicorn 启动
 
 ```bash
-# 1. 配置环境变量
-cp .env.example .env
-# 编辑 .env
+# 生产环境（推荐，使用 2 个 workers）
+python3 -m uvicorn src.server:app --host 0.0.0.0 --port 8083 --workers 2
 
-# 2. 启动服务
-docker-compose up -d
-
-# 3. 查看日志
-docker-compose logs -f slimcheck-api
-
-# 4. 停止服务
-docker-compose down
+# 开发环境（热重载）
+python3 -m uvicorn src.server:app --host 0.0.0.0 --port 8083 --reload
 ```
 
 ---
@@ -96,7 +88,7 @@ docker-compose down
 | **流式输出** | SSE (Server-Sent Events) |
 | **图片处理** | Pillow |
 | **数据验证** | Pydantic v2 |
-| **部署** | Docker + Docker Compose |
+| **部署** | Uvicorn (支持多进程 workers) |
 
 ### 完整项目结构
 
@@ -107,8 +99,6 @@ docker-compose down
 ├── .gitignore
 ├── requirements.txt        # Python 依赖
 ├── start.sh               # 后端启动脚本
-├── Dockerfile             # Docker 镜像
-├── docker-compose.yml     # Docker Compose 配置
 ├── README.md              # 本文档
 ├── API_SERVER.md          # API 服务详细文档
 ├── API_DOCUMENTATION.md   # 完整 API 接口文档
@@ -196,6 +186,7 @@ OPENAI_MODEL=doubao-seed-2.0-pro
 # ============== 服务配置 ==============
 HOST=0.0.0.0
 PORT=8083
+WORKERS=2
 LOG_LEVEL=INFO
 DEBUG=false
 
